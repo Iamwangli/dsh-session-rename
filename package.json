@@ -1,0 +1,40 @@
+{
+  "name": "dsh-session-rename",
+  "version": "1.0.0",
+  "description": "Adds a session_rename tool, so an agent can rename the current session when asked to.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Iamwangli (https://github.com/Iamwangli)",
+  "homepage": "https://github.com/Iamwangli/dsh-session-rename#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Iamwangli/dsh-session-rename.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Iamwangli/dsh-session-rename/issues"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "dsh",
+    "deepseek-harness",
+    "session",
+    "rename",
+    "tool"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" }
+  }
+}

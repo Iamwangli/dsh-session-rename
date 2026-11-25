@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "会话重命名",
+    "description": "增加 session_rename 工具，让你说一句就能让 agent 改当前会话的名字。"
+  }
+}
