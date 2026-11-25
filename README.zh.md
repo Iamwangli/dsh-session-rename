@@ -37,6 +37,16 @@ session_rename(title: "…")
 - 代价：提示词里多一条很小的工具定义。
 - 纯宿主侧插件：没有客户端代码、没有依赖、没有配置项。
 
+## 官方自带改名工具之后
+
+这个插件只是把已有的 `sessionTitle` 服务绑到一个工具上，而这种缺口正是上游最容易补掉的。如果 DSH 之后自带改名工具，这个插件就是多余的：
+
+```sh
+dsh plugin --profile web remove dsh-session-rename
+```
+
+在那之前装着它也不会拖累 profile：一旦已经存在名为 `session_rename` 的工具，或注册被拒绝，插件只打一条 warning、不注册任何东西，而不会让它的 profile 条目激活失败。
+
 ## 兼容性
 
 在 DSH `0.2.2-rc.5` 上开发和测试。只用公开的 `ctx.tools.register` API 和 `sessionTitle` 服务，并声明了 `inject`，所以在缺少这些服务的 profile 里会自动不激活。

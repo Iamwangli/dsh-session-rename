@@ -16,6 +16,9 @@ export const name = 'session-rename'
 /** Services this plugin needs; it stays inactive where they are absent. */
 export const inject = ['tools', 'sessionTitle']
 
+/** Registered tool name; collides with an upstream tool of the same name. */
+const TOOL_NAME = 'session_rename'
+
 const PARAMETERS = {
   type: 'object',
   additionalProperties: false,
@@ -48,31 +51,44 @@ const OUTPUT = {
 
 /**
  * Register the rename tool.
+ *
+ * The capability is small enough that DSH may provide it natively later. A
+ * duplicate or rejected registration degrades to one warning instead of
+ * failing this profile entry, so an obsolete plugin never breaks the Web app.
+ *
  * @param ctx - context providing the tool registry and the title service.
  */
 export function apply(ctx) {
-  ctx.tools.register({
-    name: 'session_rename',
-    description: 'Rename the current session. The title replaces the automatically generated one and stays fixed until the next rename.',
-    parameters: PARAMETERS,
-    output: OUTPUT,
-    execute(args, exec) {
-      if (exec.agent === undefined) throw new Error('session_rename requires an agent Session')
-      const title = typeof args?.title === 'string' ? args.title : ''
-      if (title.trim() === '') throw new Error('title must contain visible characters')
-      const session = exec.agent.session
-      const previous = ctx.sessionTitle.get(session)?.title ?? ''
-      let accepted
-      try {
-        accepted = ctx.sessionTitle.rename(session, title)
-      } catch (error) {
-        // The one rename failure that blames the input: text with no visible characters.
-        if (error instanceof Error && error.name === 'SessionTitleInvalidError') {
-          throw new Error('title must contain visible characters')
+  try {
+    if (ctx.tools.get(TOOL_NAME) !== undefined) {
+      ctx.logger.warn(`session-rename: a tool named "${TOOL_NAME}" is already registered, so this plugin adds nothing; remove it with "dsh plugin --profile <name> remove dsh-session-rename"`)
+      return
+    }
+    ctx.tools.register({
+      name: TOOL_NAME,
+      description: 'Rename the current session. The title replaces the automatically generated one and stays fixed until the next rename.',
+      parameters: PARAMETERS,
+      output: OUTPUT,
+      execute(args, exec) {
+        if (exec.agent === undefined) throw new Error('session_rename requires an agent Session')
+        const title = typeof args?.title === 'string' ? args.title : ''
+        if (title.trim() === '') throw new Error('title must contain visible characters')
+        const session = exec.agent.session
+        const previous = ctx.sessionTitle.get(session)?.title ?? ''
+        let accepted
+        try {
+          accepted = ctx.sessionTitle.rename(session, title)
+        } catch (error) {
+          // The one rename failure that blames the input: text with no visible characters.
+          if (error instanceof Error && error.name === 'SessionTitleInvalidError') {
+            throw new Error('title must contain visible characters')
+          }
+          throw error
         }
-        throw error
-      }
-      return { previous, title: accepted.title }
-    },
-  })
+        return { previous, title: accepted.title }
+      },
+    })
+  } catch (error) {
+    ctx.logger.warn(`session-rename: could not register "${TOOL_NAME}" (${String(error)}); if DSH now ships its own rename tool, remove this plugin`)
+  }
 }

@@ -37,6 +37,16 @@ It returns the accepted title and the previous one. An explicit rename also **pi
 - Cost: one small tool definition in the prompt.
 - The plugin is Host-only: no client code, no dependencies, no configuration.
 
+## When DSH ships its own rename tool
+
+This plugin only binds one existing service (`sessionTitle`) to a tool, which is exactly the kind of gap upstream can close. If DSH starts providing a rename tool of its own, this plugin is redundant:
+
+```sh
+dsh plugin --profile web remove dsh-session-rename
+```
+
+Leaving it installed meanwhile does not break the profile. When a tool named `session_rename` already exists, or the registration is rejected, the plugin logs one warning and registers nothing instead of failing its profile entry.
+
 ## Compatibility
 
 Developed and tested against DSH `0.2.2-rc.5`. It uses the public `ctx.tools.register` API and the `sessionTitle` service, and declares `inject` so the plugin stays inactive in profiles without them.
